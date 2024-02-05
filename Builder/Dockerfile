@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 FROM ruby:3.3.0-alpine
-LABEL maintainer="georg@ledermann.dev"
+LABEL maintainer="jstrausb86@gmail.com"
 
 # Add basic packages
 RUN apk add --no-cache \
@@ -14,20 +14,23 @@ RUN apk add --no-cache \
     git \
     nodejs-current \
     npm \
-    yarn \
-    tzdata
+    tzdata \
+    && curl -fsSL https://bun.sh/install | bash
+
+# Update PATH for Bun
+ENV PATH="/root/.bun/bin:${PATH}"
 
 WORKDIR /app
 
 #### Install standard Node modules
-COPY package.json yarn.lock /app/
+COPY package.json bun.lockb /app/
 # If your app uses Cypress for end-to-end testing, installing the binary can be slow, so we
 # explicitely exclude it from installing (because tests are not run here)
 ENV CYPRESS_INSTALL_BINARY=0
 # Avoid error "digital envelope routines::initialization error" while compiling assets with Webpack
 # due to OpenSSL 3.0 (included in Alpine 3.17+)
-ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN yarn install --frozen-lockfile
+# ENV NODE_OPTIONS=--openssl-legacy-provider
+RUN bun install --frozen-lockfile
 ####
 
 ##### Install standard gems
@@ -73,8 +76,7 @@ ONBUILD RUN bundle exec bootsnap precompile app/ lib/ || true
 ONBUILD RUN mv config/credentials.yml.enc config/credentials.yml.enc.bak 2>/dev/null || true
 ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
 ONBUILD RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc \
-    --mount=type=secret,id=yarnrc,dst=/root/.yarnrc.yml \
-    yarn install
+    bun install
 ONBUILD RUN RAILS_ENV=production \
     SECRET_KEY_BASE=dummy \
     RAILS_MASTER_KEY=dummy \
@@ -87,5 +89,6 @@ ONBUILD RUN mv config/credentials.bak config/credentials 2>/dev/null || true
 # Normally it is not needed in the resulting image, because it was compiled
 # to `public/`. But if the app uses importmaps, the folder is still required
 # for pinning and must not be removed.
-ONBUILD RUN rm -rf node_modules yarn.lock .yarn .yarnrc.yml vendor/bundle test spec app/packs
+ONBUILD RUN rm -rf node_modules bun.lockb vendor/bundle test spec app/packs
+# .yarn .yarnrc.yml
 ONBUILD RUN if [ ! -f config/importmap.rb ]; then rm -rf app/javascript; fi
