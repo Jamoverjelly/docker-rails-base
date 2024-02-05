@@ -1,6 +1,8 @@
 [![Build images](https://github.com/ledermann/docker-rails-base/actions/workflows/ci.yml/badge.svg)](https://github.com/ledermann/docker-rails-base/actions/workflows/ci.yml)
 
-# DockerRailsBase
+# DockerRailsBaseBun
+
+Project is forked from Ledermann's [DockerRailsBase](https://github.com/ledermann/docker-rails-base) and substitutes the new JavaScript runtime, Bun for Yarn.
 
 Building Docker images usually takes a long time. This repo contains base images with preinstalled dependencies for [Ruby on Rails](https://rubyonrails.org/), so building a production image will be **2-3 times faster**.
 
@@ -31,7 +33,7 @@ This repo is based on the following assumptions:
 - Your app is compatible with [Ruby 3.2 for Alpine Linux](https://github.com/docker-library/ruby/blob/master/3.2/alpine3.18/Dockerfile)
 - Your app uses Ruby on Rails 6.0, 6.1, 7.0 or 7.1
 - Your app uses PostgreSQL, SQLite or MySQL/MariaDB
-- Your app installs Node modules with [Yarn](https://yarnpkg.com/)
+- Your app installs Node modules with [Bun](https://bun.sh/)
 - Your app bundles JavaScript with `rails assets:precompile`. This works with [Vite Ruby](https://github.com/ElMassimo/vite_ruby), [Webpacker](https://github.com/rails/webpacker), [Asset pipeline (Sprockets)](https://github.com/rails/sprockets-rails) and others.
 
 If your project differs from this, I suggest to fork this project and create your own base image.
@@ -45,7 +47,7 @@ It uses [multi-stage building](https://docs.docker.com/develop/develop-images/mu
 The `Builder` stage installs Ruby gems and Node modules. It also includes Git, Node.js and some build tools - all we need to compile assets.
 
 - Based on [ruby:3.3.0-alpine](https://github.com/docker-library/ruby/blob/master/3.3/alpine3.19/Dockerfile)
-- Adds packages needed for installing gems and compiling assets: Git, Node.js, Yarn, PostgreSQL client and build tools
+- Adds packages needed for installing gems and compiling assets: Git, Node.js, Bun, PostgreSQL client and build tools
 - Adds some default Ruby gems (Rails 7.0 etc., see [Gemfile](./Builder/Gemfile))
 - Via ONBUILD triggers it installs missing gems and Node modules, then compiles the assets
 
@@ -111,16 +113,10 @@ Now you can build the image with BuildKit:
 docker buildx build .
 ```
 
-You can use private npm/Yarn packages by mounting the config file:
+You can use private npm / Bun packages by mounting the config file:
 
 ```
 docker buildx build --secret id=npmrc,src=$HOME/.npmrc .
-```
-
-or
-
-```
-docker buildx build --secret id=yarnrc,src=$HOME/.yarnrc.yml .
 ```
 
 In a similar way you can provide a configuration file for Bundler:
