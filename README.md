@@ -2,7 +2,13 @@
 
 # DockerRailsBaseBun
 
-Project is forked from Ledermann's [DockerRailsBase](https://github.com/ledermann/docker-rails-base) and substitutes the new JavaScript runtime, Bun for Yarn.
+## ⚠️ WARNING
+
+The below documentation is out-of-date. I need to come back and update the sections referring to usage of Alpine Linux as the fact `alpine` is based on musl which is incompatible with bun. Bun needed an environment based on glibc, so Debian's `slim` image was added to the linux base build the project's images from.
+
+My project is forked from Ledermann's [DockerRailsBase](https://github.com/ledermann/docker-rails-base) and substitutes the new JavaScript runtime, Bun for Yarn.
+
+==== BEGIN ORIGINAL DOCUMENTATION FROM LEDERMANN's DockerRailsBase ====
 
 Building Docker images usually takes a long time. This repo contains base images with preinstalled dependencies for [Ruby on Rails](https://rubyonrails.org/), so building a production image will be **2-3 times faster**.
 
