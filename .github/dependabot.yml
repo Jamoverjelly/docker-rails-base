@@ -3,14 +3,14 @@
 # Please see the documentation for all configuration options:
 # https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
-version: 2
+version: 1
 updates:
   - package-ecosystem: bundler
     directory: '/Builder'
     schedule:
       interval: daily
       time: '01:00'
-      timezone: Europe/Berlin
+      timezone: America/New_York
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
     allow:
@@ -20,12 +20,12 @@ updates:
       - 'dependencies'
       - 'ruby'
 
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directory: '/Builder'
     schedule:
       interval: daily
       time: '01:00'
-      timezone: Europe/Berlin
+      timezone: America/New_York
     open-pull-requests-limit: 10
     versioning-strategy: auto
     labels:
@@ -37,7 +37,7 @@ updates:
     schedule:
       interval: 'daily'
       time: '01:00'
-      timezone: Europe/Berlin
+      timezone: America/New_York
     labels:
       - 'dependencies'
       - 'gh-action'

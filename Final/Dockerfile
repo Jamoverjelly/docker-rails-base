@@ -1,15 +1,15 @@
 # syntax = docker/dockerfile:1
-FROM ruby:3.3.0-alpine
-LABEL maintainer="georg@ledermann.dev"
+FROM ruby:3.3.0-slim
+LABEL maintainer="jstrausb86@gmail.com"
 
 # Add basic packages
-RUN apk add --no-cache \
-      xz-libs \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      xz-utils \
       postgresql-client \
-      gcompat \
-      brotli-libs \
+      libgomp1 \
       tzdata \
-      file
+      file \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure Rails
 ENV RAILS_LOG_TO_STDOUT true
@@ -36,8 +36,8 @@ ONBUILD ENV COMMIT_VERSION ${COMMIT_VERSION}
 ONBUILD ENV COMMIT_BRANCH ${COMMIT_BRANCH}
 
 # Add user
-ONBUILD RUN addgroup -g 1000 -S app && \
-      adduser -u 1000 -S app -G app
+ONBUILD RUN addgroup --gid 1000 app && \
+      adduser --uid 1000 --ingroup app --shell /bin/sh --disabled-password --no-create-home app
 
 # Copy app with gems from former build stage
 ONBUILD COPY --from=Builder --chown=app:app /usr/local/bundle/ /usr/local/bundle/

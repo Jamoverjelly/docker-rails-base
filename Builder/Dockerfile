@@ -1,20 +1,21 @@
 # syntax = docker/dockerfile:1
-FROM ruby:3.3.0-alpine
+FROM ruby:3.3.0-slim
 LABEL maintainer="jstrausb86@gmail.com"
 
-# Add basic packages
-RUN apk add --no-cache \
-    build-base \
-    gcompat \
-    vips-dev \
-    imagemagick-dev \
-    postgresql-dev \
-    sqlite-dev \
-    mariadb-dev \
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libglib2.0-dev \
+    libvips-dev \
+    libmagickwand-dev \
+    libpq-dev \
+    libsqlite3-dev \
+    default-libmysqlclient-dev \
     git \
-    nodejs-current \
-    npm \
     tzdata \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://bun.sh/install | bash
 
 # Update PATH for Bun
@@ -25,12 +26,9 @@ WORKDIR /app
 #### Install standard Node modules
 COPY package.json bun.lockb /app/
 # If your app uses Cypress for end-to-end testing, installing the binary can be slow, so we
-# explicitely exclude it from installing (because tests are not run here)
+# explicitly exclude it from installing (because tests are not run here)
 ENV CYPRESS_INSTALL_BINARY=0
-# Avoid error "digital envelope routines::initialization error" while compiling assets with Webpack
-# due to OpenSSL 3.0 (included in Alpine 3.17+)
-# ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN bun install --frozen-lockfile
+RUN bun install
 ####
 
 ##### Install standard gems
