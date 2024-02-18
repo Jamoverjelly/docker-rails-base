@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TAG_NAME: 3.3.0-alpine
-  USER_NAME: ledermann
+  TAG_NAME: 1.0.0-slim
+  USER_NAME: jamoverjelly
 
 jobs:
   build:
