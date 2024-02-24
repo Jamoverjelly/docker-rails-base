@@ -74,8 +74,10 @@ ONBUILD RUN bundle exec bootsnap precompile app/ lib/ || true
 ONBUILD RUN mv config/credentials.yml.enc config/credentials.yml.enc.bak 2>/dev/null || true
 ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
 ONBUILD RUN bun install
-ONBUILD RUN RAILS_ENV=production \
-    SECRET_KEY_BASE=dummy \
+# Capture env var output from the script and set environment variables to "dummy"
+# for the assets compilation step
+ONBUILD RUN set -a && /app/dotenv_sanitizer.sh && set +a \
+    && RAILS_ENV=production \
     RAILS_MASTER_KEY=dummy \
     bundle exec rails assets:precompile
 ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
