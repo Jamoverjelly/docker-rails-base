@@ -76,8 +76,8 @@ ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
 ONBUILD RUN bun install
 # Before executing the assets compilation step, read and add `mount` and `export`
 # commands to set up environment variables from Docker secrets
-ONBUILD RUN RAILS_ENV=production \
-    && set -a && /app/add-secret-mount-and-export-cmds.sh && set +a \
+ONBUILD RUN set -a && /app/add-secret-mount-and-export-cmds.sh && set +a \
+    && export RAILS_ENV=production \
     && bundle exec rails assets:precompile
 ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
 ONBUILD RUN mv config/credentials.bak config/credentials 2>/dev/null || true
