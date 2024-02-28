@@ -57,6 +57,28 @@ ONBUILD RUN --mount=type=secret,id=bundleconfig,dst=/root/.bundle/config \
     find /usr/local/bundle/gems/ -name "*.c" -delete && \
     find /usr/local/bundle/gems/ -name "*.o" -delete
 
+# Mount secrets from build arguments 
+RUN --mount=type=secret,id=db_password \
+    echo "$SECRET_DB_PASSWORD" > /app/config/credentials/env_files/db_password.txt 
+
+RUN --mount=type=secret,id=db_user \
+    echo "$SECRET_DB_USER" > /app/config/credentials/env_files/db_user.txt 
+
+RUN --mount=type=secret,id=honeybadger_api_key \
+    echo "$SECRET_HONEYBADGER_API_KEY" > /app/config/credentials/env_files/honeybadger_api_key.txt 
+
+RUN --mount=type=secret,id=postmark_api_key \
+    echo "$SECRET_POSTMARK_API_KEY" > /app/config/credentials/env_files/postmark_api_key.txt 
+
+RUN --mount=type=secret,id=rails_master_key \
+    echo "$SECRET_RAILS_MASTER_KEY" > /app/config/credentials/env_files/rails_master_key.txt 
+
+RUN --mount=type=secret,id=rorvswild_api_key \
+    echo "$SECRET_RORVSWILD_API_KEY" > /app/config/credentials/env_files/rorvswild_api_key.txt
+
+RUN --mount=type=secret,id=secret_key_base \
+    echo "$SECRET_SECRET_KEY_BASE" > /app/config/credentials/env_files/secret_key_base.txt
+
 # Copy the whole application folder into the image
 ONBUILD COPY . /app
 
@@ -76,8 +98,8 @@ ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
 ONBUILD RUN bun install
 # Before executing the assets compilation step, read and add `mount` and `export`
 # commands to set up environment variables from Docker secrets
-ONBUILD RUN set -a && /app/add-secret-mount-and-export-cmds.sh && set +a \
-    && export RAILS_ENV=production \
+# set -a && /app/add-secret-mount-and-export-cmds.sh && set +a \
+ONBUILD RUN export RAILS_ENV=production \
     && bundle exec rails assets:precompile
 ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
 ONBUILD RUN mv config/credentials.bak config/credentials 2>/dev/null || true
