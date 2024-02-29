@@ -77,14 +77,14 @@ ONBUILD RUN bun install
 # If sensitive data like env vars are needed during asset compilation:
 # 1. Add a new directory in the context of the Builder's build container to 
 #    receive the secrets mount. This step shouldn't trigger in the context of
-#    the actual Rails application as `/root/config/credentials` should already exist
-# 2. Mount the secrets to the dst directory, e.g., /root/config/credentials
+#    the actual Rails application as `/app/config/credentials` should already exist
+# 2. Mount the secrets to the dst directory, e.g., app/config/credentials
 # 3. In your Rails app, set up an initializer script to extract the secrets from the
 #    mounted directory, so they're available on ENV and provided to asset compilation
 # 4. At image build, pass the secrets from a local file as a --secret build arg:
 #   `docker build --secret id=env_secrets,src=.env`
-ONBUILD RUN if [ ! -d /root/config/credentials ]; then mkdir /root/config/credentials; fi \
-    && --mount=type=secret,id=env_secrets,dst=/root/config/credentials/env_secrets \
+ONBUILD RUN if [ ! -d /app/config/credentials ]; then mkdir /app/config/credentials; fi \
+    && --mount=type=secret,id=env_secrets,dst=/app/config/credentials/env_secrets \
     && export RAILS_ENV=production \
     && bundle exec rails assets:precompile
 ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
