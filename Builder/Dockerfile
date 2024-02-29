@@ -82,7 +82,7 @@ ONBUILD RUN bun install
 #    mounted directory, so they're available on ENV and provided to asset compilation
 # 4. At image build, pass the secrets from a local file as a --secret build arg:
 #   `docker build --secret id=env_secrets,src=.env`
-ONBUILD RUN mkdir app/config/credentials \
+ONBUILD RUN if [ ! -d app/config/credentials ]; then mkdir app/config/credentials; fi \
     && --mount=type=secret,id=env_secrets,target=app/config/credentials/env_secrets \
     && export RAILS_ENV=production \
     && bundle exec rails assets:precompile
