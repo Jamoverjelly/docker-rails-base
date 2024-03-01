@@ -79,7 +79,7 @@ ONBUILD RUN bun install
 # Currently, it seems a hack is needed to get the Vite bundle activity from
 # `bundle exec rails assets:precompile`to ignore an expectation for node
 # Create a symbolic link for 'node' to point to 'bun'
-RUN ln -s $(which bun) /usr/bin/node
+ONBUILD RUN ln -s $(which bun) /usr/bin/node
 
 # If sensitive data like env vars are needed during asset compilation:
 # 1. Mount the secrets to the target directory
