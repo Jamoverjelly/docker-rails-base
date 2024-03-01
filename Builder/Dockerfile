@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && curl -fsSL https://bun.sh/install | bash
 
 # Update PATH for Bun
-ENV PATH="/root/.bun/bin:${PATH}"
+ENV BUN_INSTALL="/root/.bun"
+ENV PATH="$BUN_INSTALL/bin:$PATH"
 
 WORKDIR /app
 
@@ -74,18 +75,20 @@ ONBUILD RUN bundle exec bootsnap precompile app/ lib/ || true
 ONBUILD RUN mv config/credentials.yml.enc config/credentials.yml.enc.bak 2>/dev/null || true
 ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
 ONBUILD RUN bun install
+
+# Currently, it seems a hack is needed to get the Vite bundle activity from
+# `bundle exec rails assets:precompile`to ignore an expectation for node
+# Create a symbolic link for 'node' to point to 'bun'
+RUN ln -s $(which bun) /usr/bin/node
+
 # If sensitive data like env vars are needed during asset compilation:
-# 1. Add a new directory in the context of the Builder's build container to 
-#    receive the secrets mount. This step shouldn't trigger in the context of
-#    the actual Rails application as `/app/config/credentials` should already exist
-# 2. Mount the secrets to the dst directory, e.g., app/config/credentials
-# 3. In your Rails app, set up an initializer script to extract the secrets from the
+# 1. Mount the secrets to the target directory
+# 2. In your Rails app, set up an initializer script to extract the secrets from the
 #    mounted directory, so they're available on ENV and provided to asset compilation
-# 4. At image build, pass the secrets from a local file as a --secret build arg:
+# 3. At image build, pass the secrets from a local file as a --secret build arg:
 #   `docker build --secret id=env_secrets,src=.env`
-ONBUILD RUN if [ ! -d /app/config/credentials ]; then mkdir /app/config/credentials; fi \
-    && --mount=type=secret,id=env_secrets,dst=/app/config/credentials/env_secrets \
-    && export RAILS_ENV=production \
+ONBUILD RUN --mount=type=secret,id=env_secrets,target=/app/env_secrets \
+    export RAILS_ENV=production \
     && bundle exec rails assets:precompile
 ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
 ONBUILD RUN mv config/credentials.bak config/credentials 2>/dev/null || true
