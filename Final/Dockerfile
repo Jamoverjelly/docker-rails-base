@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libgomp1 \
       tzdata \
       file \
+      netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Rails
