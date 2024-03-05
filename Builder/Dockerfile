@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libsqlite3-dev \
     default-libmysqlclient-dev \
-    netcat \
+    netcat-openbsd \
     git \
     tzdata \
     curl \
