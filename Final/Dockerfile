@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile:1
 FROM ruby:3.3.0-slim
+ARG TARGETARCH
 LABEL maintainer="jstrausb86@gmail.com"
 
 # Add basic packages
@@ -10,12 +11,30 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       tzdata \
       file \
       netcat-openbsd \
+      imagemagick \
+      libmagickwand-6.q16-6 \
+      libvips \
+      libglib2.0-0 \
+      libglib2.0-dev \
+      libgomp1 \
+      libjpeg62-turbo \
+      libpng16-16 \
+      libwebp7 \
+      libgif7 \
+      librsvg2-2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Set LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:/lib/${TARGETARCH}-linux-gnu:/usr/lib/${TARGETARCH}-linux-gnu
+
+# Verify glib installation
+RUN ldconfig -p | grep glib && \
+    ls -l /lib/${TARGETARCH}-linux-gnu/libglib-2.0.so*
+
 # Configure Rails
-ENV RAILS_LOG_TO_STDOUT true
-ENV RAILS_SERVE_STATIC_FILES true
-ENV MALLOC_ARENA_MAX 2
+ENV RAILS_LOG_TO_STDOUT=true
+ENV RAILS_SERVE_STATIC_FILES=true
+ENV MALLOC_ARENA_MAX=2
 
 WORKDIR /app
 
@@ -23,7 +42,7 @@ WORKDIR /app
 EXPOSE 3000
 
 # This image is for production env only
-ENV RAILS_ENV production
+ENV RAILS_ENV=production
 
 # Write GIT meta data from arguments to env vars
 ONBUILD ARG COMMIT_SHA
