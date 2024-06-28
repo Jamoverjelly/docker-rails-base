@@ -24,13 +24,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       librsvg2-2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Set LD_LIBRARY_PATH
-ENV LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:/lib/${TARGETARCH}-linux-gnu:/usr/lib/${TARGETARCH}-linux-gnu
-
-# Verify glib installation
-RUN ldconfig -p | grep glib && \
-    ls -l /lib/${TARGETARCH}-linux-gnu/libglib-2.0.so*
-
 # Configure Rails
 ENV RAILS_LOG_TO_STDOUT=true
 ENV RAILS_SERVE_STATIC_FILES=true
