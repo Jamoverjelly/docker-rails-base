@@ -1,6 +1,5 @@
 # syntax = docker/dockerfile:1
 FROM ruby:3.3.0-slim
-ARG TARGETARCH
 LABEL maintainer="jstrausb86@gmail.com"
 
 # Add basic packages
@@ -23,6 +22,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libgif7 \
       librsvg2-2 \
     && rm -rf /var/lib/apt/lists/*
+
+# Set LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu
+
+# Set LIBGLIB_PATH
+ENV LIBGLIB_PATH=/lib/x86_64-linux-gnu/libglib-2.0.so.0
+
+# Verify glib installation
+RUN ldconfig -p | grep glib && \
+    ls -l /lib/x86_64-linux-gnu/libglib-2.0.so* && \
+    ls -l /usr/lib/x86_64-linux-gnu/libglib-2.0.so*
+
+# Add debugging information
+RUN echo "LIBGLIB_PATH: $LIBGLIB_PATH" && \
+    ls -l $LIBGLIB_PATH && \
+    ldd $LIBGLIB_PATH
 
 # Configure Rails
 ENV RAILS_LOG_TO_STDOUT=true
