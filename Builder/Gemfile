@@ -33,6 +33,9 @@ gem 'jbuilder'
 # A fast JSON parser and serializer. (http://www.ohler.com/oj)
 gem 'oj'
 
+# Ruby FFI library (https://github.com/ffi/ffi/wiki)
+gem 'ffi', '~> 1.17.0'
+
 # High-level wrapper for processing images for the web with ImageMagick or libvips. (https://github.com/janko/image_processing)
 gem 'image_processing', '~> 1.2'
 
